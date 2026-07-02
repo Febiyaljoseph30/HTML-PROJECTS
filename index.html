@@ -1,293 +1,537 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Employee Attendance Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
 
-body{
-    background:#f4f6f9;
-    padding:20px;
-}
+        header {
+            background: linear-gradient(135deg, #b71c1c, #d32f2f);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
 
-.container{
-    max-width:1000px;
-    margin:auto;
-}
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
 
-header{
-    background:#1e3a8a;
-    color:white;
-    padding:20px;
-    text-align:center;
-    border-radius:10px;
-    margin-bottom:20px;
-}
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
 
-.form-box{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
 
-.form-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:15px;
-}
+        .form-section,
+        .table-section,
+        .chart-section {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
 
-label{
-    font-weight:bold;
-}
+        .form-section h2,
+        .table-section h2,
+        .chart-section h2 {
+            margin-bottom: 20px;
+            color: #ef5350;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+        }
 
-input{
-    width:100%;
-    padding:10px;
-    margin-top:5px;
-    border:1px solid #ccc;
-    border-radius:5px;
-}
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+        }
 
-button{
-    margin-top:20px;
-    padding:12px 25px;
-    background:#2563eb;
-    color:white;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-    font-size:16px;
-}
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
 
-button:hover{
-    background:#1d4ed8;
-}
+        .form-group label {
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #bbb;
+        }
 
-.table-box{
-    margin-top:30px;
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
-    overflow-x:auto;
-}
+        .form-group input {
+            padding: 10px 12px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #333;
+            color: #e0e0e0;
+            transition: border-color 0.3s;
+        }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-}
+        .form-group input:focus {
+            outline: none;
+            border-color: #d32f2f;
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.25);
+        }
 
-th,td{
-    border:1px solid #ddd;
-    padding:12px;
-    text-align:center;
-}
+        .form-group input::placeholder {
+            color: #777;
+        }
 
-th{
-    background:#2563eb;
-    color:white;
-}
+        .error-msg {
+            color: #ff5252;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            min-height: 18px;
+        }
 
-.badge{
-    color:white;
-    padding:6px 12px;
-    border-radius:20px;
-    font-weight:bold;
-}
+        .btn-submit {
+            margin-top: 22px;
+            padding: 12px 35px;
+            background: linear-gradient(135deg, #b71c1c, #d32f2f);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-.excellent{
-    background:green;
-}
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.45);
+        }
 
-.good{
-    background:#0ea5e9;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-.average{
-    background:orange;
-}
+        thead th {
+            background-color: #b71c1c;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
 
-.poor{
-    background:red;
-}
+        thead th:first-child {
+            border-radius: 6px 0 0 0;
+        }
 
-@media(max-width:600px){
-    header{
-        font-size:18px;
-    }
-}
-</style>
+        thead th:last-child {
+            border-radius: 0 6px 0 0;
+        }
 
+        tbody td {
+            padding: 11px 15px;
+            border-bottom: 1px solid #444;
+            font-size: 0.9rem;
+        }
+
+        tbody tr:hover {
+            background-color: #333;
+        }
+
+        tbody tr:last-child td:first-child {
+            border-radius: 0 0 0 6px;
+        }
+
+        tbody tr:last-child td:last-child {
+            border-radius: 0 0 6px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-excellent {
+            background-color: #1b5e20;
+            color: #a5d6a7;
+        }
+
+        .badge-good {
+            background-color: #0d47a1;
+            color: #90caf9;
+        }
+
+        .badge-average {
+            background-color: #e65100;
+            color: #ffcc80;
+        }
+
+        .badge-poor {
+            background-color: #b71c1c;
+            color: #ef9a9a;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 25px;
+            color: #777;
+            font-style: italic;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 1.3rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-section {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 500px;
+            }
+
+            .chart-wrapper {
+                height: 280px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-
 <header>
-<h1>Employee Attendance Dashboard</h1>
+    <div>
+        <h1>Employee Attendance Dashboard</h1>
+        <p>Track and manage employee attendance efficiently</p>
+    </div>
 </header>
 
-<div class="form-box">
+<div class="container">
 
-<div class="form-grid">
+    <!-- Attendance Form -->
+    <div class="form-section">
+        <h2>Employee Attendance Form</h2>
+        <form id="attendanceForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="empId">Employee ID</label>
+                    <input type="text" id="empId" placeholder="e.g. 101">
+                    <span class="error-msg" id="empIdErr"></span>
+                </div>
+                <div class="form-group">
+                    <label for="empName">Employee Name</label>
+                    <input type="text" id="empName" placeholder="e.g. Rahul">
+                    <span class="error-msg" id="empNameErr"></span>
+                </div>
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <input type="text" id="department" placeholder="e.g. Engineering">
+                    <span class="error-msg" id="departmentErr"></span>
+                </div>
+                <div class="form-group">
+                    <label for="workingDays">Working Days</label>
+                    <input type="number" id="workingDays" min="1" placeholder="e.g. 30">
+                    <span class="error-msg" id="workingDaysErr"></span>
+                </div>
+                <div class="form-group">
+                    <label for="presentDays">Present Days</label>
+                    <input type="number" id="presentDays" min="0" placeholder="e.g. 28">
+                    <span class="error-msg" id="presentDaysErr"></span>
+                </div>
+                <div class="form-group">
+                    <label for="leaveDays">Leave Days</label>
+                    <input type="number" id="leaveDays" min="0" placeholder="e.g. 2">
+                    <span class="error-msg" id="leaveDaysErr"></span>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Submit</button>
+        </form>
+    </div>
 
-<div>
-<label>Employee ID</label>
-<input type="text" id="empId">
-</div>
+    <!-- Attendance Graph -->
+    <div class="chart-section">
+        <h2>Attendance Percentage Graph</h2>
+        <div class="chart-wrapper">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+    </div>
 
-<div>
-<label>Employee Name</label>
-<input type="text" id="empName">
-</div>
-
-<div>
-<label>Department</label>
-<input type="text" id="department">
-</div>
-
-<div>
-<label>Working Days</label>
-<input type="number" id="workingDays">
-</div>
-
-<div>
-<label>Present Days</label>
-<input type="number" id="presentDays">
-</div>
-
-<div>
-<label>Leave Days</label>
-<input type="number" id="leaveDays">
-</div>
-
-</div>
-
-<button onclick="addAttendance()">Submit</button>
-
-</div>
-
-<div class="table-box">
-
-<table>
-
-<thead>
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Department</th>
-<th>Working Days</th>
-<th>Present Days</th>
-<th>Leave Days</th>
-<th>Attendance %</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody id="attendanceTable">
-
-</tbody>
-
-</table>
-
-</div>
+    <!-- Attendance Report Table -->
+    <div class="table-section">
+        <h2>Attendance Report</h2>
+        <table id="reportTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Working Days</th>
+                    <th>Present Days</th>
+                    <th>Leave Days</th>
+                    <th>Attendance %</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="reportBody">
+                <tr>
+                    <td colspan="8" class="no-data">No attendance records yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
 </div>
 
 <script>
+    const form = document.getElementById('attendanceForm');
+    const reportBody = document.getElementById('reportBody');
 
-function addAttendance(){
+    const chartLabels = [];
+    const chartData = [];
+    const chartColors = [];
 
-let id=document.getElementById("empId").value.trim();
-let name=document.getElementById("empName").value.trim();
-let dept=document.getElementById("department").value.trim();
+    const ctx = document.getElementById('attendanceChart').getContext('2d');
+    const attendanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Attendance %',
+                data: chartData,
+                backgroundColor: chartColors,
+                borderColor: chartColors,
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: '#e0e0e0', font: { size: 13 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + '%';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#ccc', font: { size: 12 } },
+                    grid: { color: '#444' }
+                },
+                y: {
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        color: '#ccc',
+                        font: { size: 12 },
+                        callback: function(value) { return value + '%'; }
+                    },
+                    grid: { color: '#444' }
+                }
+            }
+        }
+    });
 
-let working=parseInt(document.getElementById("workingDays").value);
-let present=parseInt(document.getElementById("presentDays").value);
-let leave=parseInt(document.getElementById("leaveDays").value);
+    function getBarColor(percent) {
+        if (percent >= 90) return '#4caf50';
+        if (percent >= 75) return '#e0e0e0';
+        if (percent >= 50) return '#ff9800';
+        return '#d32f2f';
+    }
 
-// Mandatory Validation
+    const fields = ['empId', 'empName', 'department', 'workingDays', 'presentDays', 'leaveDays'];
 
-if(id=="" || name=="" || dept=="" ||
-isNaN(working) || isNaN(present) || isNaN(leave))
-{
-alert("Please fill all fields.");
-return;
-}
+    function clearErrors() {
+        fields.forEach(f => {
+            document.getElementById(f + 'Err').textContent = '';
+        });
+    }
 
-// Validation
+    function getBadgeClass(percent) {
+        if (percent >= 90) return 'badge-excellent';
+        if (percent >= 75) return 'badge-good';
+        if (percent >= 50) return 'badge-average';
+        return 'badge-poor';
+    }
 
-if(present>working){
-alert("Present Days cannot be greater than Working Days.");
-return;
-}
+    function getStatus(percent) {
+        if (percent >= 90) return 'Excellent';
+        if (percent >= 75) return 'Good';
+        if (percent >= 50) return 'Average';
+        return 'Poor';
+    }
 
-if(leave>working){
-alert("Leave Days cannot be greater than Working Days.");
-return;
-}
+    function loadSampleData() {
+        const sampleEmployees = [
+            { id: '101', name: 'Rahul', dept: 'Engineering', working: 30, present: 28, leave: 2 },
+            { id: '102', name: 'Priya', dept: 'Marketing', working: 30, present: 23, leave: 7 },
+            { id: '103', name: 'Amit', dept: 'HR', working: 30, present: 30, leave: 0 },
+            { id: '104', name: 'Sneha', dept: 'Finance', working: 30, present: 20, leave: 10 },
+            { id: '105', name: 'Vikram', dept: 'Engineering', working: 30, present: 26, leave: 4 },
+            { id: '106', name: 'Neha', dept: 'Design', working: 30, present: 14, leave: 16 },
+            { id: '107', name: 'Arjun', dept: 'Sales', working: 30, present: 25, leave: 5 },
+            { id: '108', name: 'Kavya', dept: 'Engineering', working: 30, present: 27, leave: 3 }
+        ];
 
-// Attendance Calculation
+        sampleEmployees.forEach(emp => {
+            const percent = ((emp.present / emp.working) * 100).toFixed(1);
+            const status = getStatus(parseFloat(percent));
+            const badgeClass = getBadgeClass(parseFloat(percent));
 
-let percentage=((present/working)*100).toFixed(0);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${emp.id}</td>
+                <td>${emp.name}</td>
+                <td>${emp.dept}</td>
+                <td>${emp.working}</td>
+                <td>${emp.present}</td>
+                <td>${emp.leave}</td>
+                <td>${percent}%</td>
+                <td><span class="badge ${badgeClass}">${status}</span></td>
+            `;
+            reportBody.appendChild(row);
 
-let status="";
-let badge="";
+            chartLabels.push(emp.name);
+            chartData.push(parseFloat(percent));
+            chartColors.push(getBarColor(parseFloat(percent)));
+        });
 
-if(percentage>=90){
-status="Excellent";
-badge="excellent";
-}
-else if(percentage>=75){
-status="Good";
-badge="good";
-}
-else if(percentage>=50){
-status="Average";
-badge="average";
-}
-else{
-status="Poor";
-badge="poor";
-}
+        attendanceChart.update();
+    }
 
-// Add Row
+    loadSampleData();
 
-let table=document.getElementById("attendanceTable");
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        clearErrors();
 
-let row=table.insertRow();
+        const empId = document.getElementById('empId').value.trim();
+        const empName = document.getElementById('empName').value.trim();
+        const department = document.getElementById('department').value.trim();
+        const workingDays = parseInt(document.getElementById('workingDays').value);
+        const presentDays = parseInt(document.getElementById('presentDays').value);
+        const leaveDays = parseInt(document.getElementById('leaveDays').value);
 
-row.innerHTML=`
-<td>${id}</td>
-<td>${name}</td>
-<td>${dept}</td>
-<td>${working}</td>
-<td>${present}</td>
-<td>${leave}</td>
-<td>${percentage}%</td>
-<td><span class="badge ${badge}">${status}</span></td>
-`;
+        let valid = true;
 
-// Clear Form
+        if (!empId) {
+            document.getElementById('empIdErr').textContent = 'Employee ID is required';
+            valid = false;
+        }
+        if (!empName) {
+            document.getElementById('empNameErr').textContent = 'Employee Name is required';
+            valid = false;
+        }
+        if (!department) {
+            document.getElementById('departmentErr').textContent = 'Department is required';
+            valid = false;
+        }
+        if (isNaN(workingDays) || workingDays <= 0) {
+            document.getElementById('workingDaysErr').textContent = 'Enter valid working days';
+            valid = false;
+        }
+        if (isNaN(presentDays) || presentDays < 0) {
+            document.getElementById('presentDaysErr').textContent = 'Enter valid present days';
+            valid = false;
+        }
+        if (isNaN(leaveDays) || leaveDays < 0) {
+            document.getElementById('leaveDaysErr').textContent = 'Enter valid leave days';
+            valid = false;
+        }
 
-document.getElementById("empId").value="";
-document.getElementById("empName").value="";
-document.getElementById("department").value="";
-document.getElementById("workingDays").value="";
-document.getElementById("presentDays").value="";
-document.getElementById("leaveDays").value="";
+        if (!valid) return;
 
-}
+        if (presentDays > workingDays) {
+            document.getElementById('presentDaysErr').textContent = 'Present Days cannot exceed Working Days';
+            return;
+        }
+        if (leaveDays > workingDays) {
+            document.getElementById('leaveDaysErr').textContent = 'Leave Days cannot exceed Working Days';
+            return;
+        }
+        if (presentDays + leaveDays > workingDays) {
+            document.getElementById('leaveDaysErr').textContent = 'Present + Leave cannot exceed Working Days';
+            return;
+        }
 
+        const percent = ((presentDays / workingDays) * 100).toFixed(1);
+        const status = getStatus(parseFloat(percent));
+        const badgeClass = getBadgeClass(parseFloat(percent));
+
+        // Remove placeholder row
+        if (reportBody.querySelector('.no-data')) {
+            reportBody.innerHTML = '';
+        }
+
+        // Add table row
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${empId}</td>
+            <td>${empName}</td>
+            <td>${department}</td>
+            <td>${workingDays}</td>
+            <td>${presentDays}</td>
+            <td>${leaveDays}</td>
+            <td>${percent}%</td>
+            <td><span class="badge ${badgeClass}">${status}</span></td>
+        `;
+        reportBody.appendChild(row);
+
+        // Update chart
+        chartLabels.push(empName);
+        chartData.push(parseFloat(percent));
+        chartColors.push(getBarColor(parseFloat(percent)));
+        attendanceChart.update();
+
+        form.reset();
+    });
 </script>
 
 </body>
