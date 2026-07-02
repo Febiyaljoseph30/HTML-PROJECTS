@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Employee Attendance Dashboard</title>
-
+<input type="text" id="searchId" placeholder="Search Employee ID">
+<button onclick="searchEmployee()">Search</button>
+<th>Action</th>
 <style>
 *{
     margin:0;
@@ -56,6 +58,8 @@ input{
     border:1px solid #ccc;
     border-radius:5px;
 }
+
+
 
 button{
     margin-top:20px;
@@ -118,6 +122,23 @@ th{
 
 .poor{
     background:red;
+}
+.deleteBtn{
+    background:red;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:5px;
+    cursor:pointer;
+}
+.editBtn{
+    background:#f59e0b;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:5px;
+    cursor:pointer;
+    margin-right:5px;
 }
 
 @media(max-width:600px){
@@ -192,6 +213,17 @@ th{
 <th>Status</th>
 </tr>
 </thead>
+
+<td>
+<button class="deleteBtn" onclick="deleteRow(this)">
+Delete
+</button>
+</td>
+<td>
+<button class="editBtn" onclick="editRow(this)">Edit</button>
+
+<button class="deleteBtn" onclick="deleteRow(this)">Delete</button>
+</td>
 
 <tbody id="attendanceTable">
 
@@ -285,6 +317,39 @@ document.getElementById("department").value="";
 document.getElementById("workingDays").value="";
 document.getElementById("presentDays").value="";
 document.getElementById("leaveDays").value="";
+
+}
+function searchEmployee() {
+    let input = document.getElementById("searchId").value.toLowerCase();
+    let table = document.getElementById("attendanceTable");
+    let rows = table.getElementsByTagName("tr");
+
+    for (let i = 0; i < rows.length; i++) {
+        let id = rows[i].cells[0].innerText.toLowerCase();
+        if (id.includes(input)) {
+            rows[i].style.display = "";
+        } else {
+            rows[i].style.display = "none";
+        }
+    }
+}
+function deleteRow(btn){
+    if(confirm("Delete this employee?")){
+        btn.parentElement.parentElement.remove();
+    }
+}
+function editRow(btn){
+
+let row = btn.parentElement.parentElement;
+
+document.getElementById("empId").value = row.cells[0].innerHTML;
+document.getElementById("empName").value = row.cells[1].innerHTML;
+document.getElementById("department").value = row.cells[2].innerHTML;
+document.getElementById("workingDays").value = row.cells[3].innerHTML;
+document.getElementById("presentDays").value = row.cells[4].innerHTML;
+document.getElementById("leaveDays").value = row.cells[5].innerHTML;
+
+row.remove();
 
 }
 
