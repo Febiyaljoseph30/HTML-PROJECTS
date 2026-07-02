@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Attendance Dashboard</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+header{
+    background:#1e3a8a;
+    color:white;
+    padding:20px;
+    text-align:center;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+.form-box{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+}
+
+label{
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+button{
+    margin-top:20px;
+    padding:12px 25px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+.table-box{
+    margin-top:30px;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:12px;
+    text-align:center;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+
+.badge{
+    color:white;
+    padding:6px 12px;
+    border-radius:20px;
+    font-weight:bold;
+}
+
+.excellent{
+    background:green;
+}
+
+.good{
+    background:#0ea5e9;
+}
+
+.average{
+    background:orange;
+}
+
+.poor{
+    background:red;
+}
+
+@media(max-width:600px){
+    header{
+        font-size:18px;
+    }
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<header>
+<h1>Employee Attendance Dashboard</h1>
+</header>
+
+<div class="form-box">
+
+<div class="form-grid">
+
+<div>
+<label>Employee ID</label>
+<input type="text" id="empId">
+</div>
+
+<div>
+<label>Employee Name</label>
+<input type="text" id="empName">
+</div>
+
+<div>
+<label>Department</label>
+<input type="text" id="department">
+</div>
+
+<div>
+<label>Working Days</label>
+<input type="number" id="workingDays">
+</div>
+
+<div>
+<label>Present Days</label>
+<input type="number" id="presentDays">
+</div>
+
+<div>
+<label>Leave Days</label>
+<input type="number" id="leaveDays">
+</div>
+
+</div>
+
+<button onclick="addAttendance()">Submit</button>
+
+</div>
+
+<div class="table-box">
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Department</th>
+<th>Working Days</th>
+<th>Present Days</th>
+<th>Leave Days</th>
+<th>Attendance %</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="attendanceTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+function addAttendance(){
+
+let id=document.getElementById("empId").value.trim();
+let name=document.getElementById("empName").value.trim();
+let dept=document.getElementById("department").value.trim();
+
+let working=parseInt(document.getElementById("workingDays").value);
+let present=parseInt(document.getElementById("presentDays").value);
+let leave=parseInt(document.getElementById("leaveDays").value);
+
+// Mandatory Validation
+
+if(id=="" || name=="" || dept=="" ||
+isNaN(working) || isNaN(present) || isNaN(leave))
+{
+alert("Please fill all fields.");
+return;
+}
+
+// Validation
+
+if(present>working){
+alert("Present Days cannot be greater than Working Days.");
+return;
+}
+
+if(leave>working){
+alert("Leave Days cannot be greater than Working Days.");
+return;
+}
+
+// Attendance Calculation
+
+let percentage=((present/working)*100).toFixed(0);
+
+let status="";
+let badge="";
+
+if(percentage>=90){
+status="Excellent";
+badge="excellent";
+}
+else if(percentage>=75){
+status="Good";
+badge="good";
+}
+else if(percentage>=50){
+status="Average";
+badge="average";
+}
+else{
+status="Poor";
+badge="poor";
+}
+
+// Add Row
+
+let table=document.getElementById("attendanceTable");
+
+let row=table.insertRow();
+
+row.innerHTML=`
+<td>${id}</td>
+<td>${name}</td>
+<td>${dept}</td>
+<td>${working}</td>
+<td>${present}</td>
+<td>${leave}</td>
+<td>${percentage}%</td>
+<td><span class="badge ${badge}">${status}</span></td>
+`;
+
+// Clear Form
+
+document.getElementById("empId").value="";
+document.getElementById("empName").value="";
+document.getElementById("department").value="";
+document.getElementById("workingDays").value="";
+document.getElementById("presentDays").value="";
+document.getElementById("leaveDays").value="";
+
+}
+
+</script>
+
+</body>
+</html>
